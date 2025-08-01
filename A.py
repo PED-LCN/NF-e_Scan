@@ -1,6 +1,9 @@
-#Image Capture Part
+import pytesseract
+import re
 import cv2
+from docx import Document
 
+#Image Capture Part
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Erro ao abrir a câmera")
@@ -12,7 +15,7 @@ else:
     while True:
         ret, frame = cap.read()
 
-        if cv2.getWindowProperty('Captura da nota fiscal', cv2.WND_PROP_VISIBLE) < 1:
+        if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
             print("Janela fechada pelo usuário")
             break
         if not ret:
@@ -42,4 +45,51 @@ else:
     
 cap.release()
 cv2.destroyAllWindows()
+
+#Data process
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+try:
+    img_capturad = cv2.imread('captura.jpg')
+    if img_capturad is None:
+        raise FileNotFoundError("Arquivo de imagem não encontrado.")
+except FileNotFoundError as e:
+    print(e)
+    exit()
+
+gray = cv2.cvtColor(img_capturad, cv2.COLOR_BGR2GRAY)
+thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+texto_completo = pytesseract.image_to_string(thresh, lang='por')
+
+print("\n--- Texto Extraído ---")
+print(texto_completo)
+print("----------------------\n")
+
+def extrair_dados_fatura(texto):
+    faturas = []
+    
+    numero_padrao = r'(\d{9}/\d{2})'
+    data_padrao = r'(\d{2}/\d{2}/\d{4})'
+    valor_padrao = r'(\d{1,3}\.\d{3},\d{2})'
+    
+    numeros = re.findall(numero_padrao, texto)
+    datas = re.findall(data_padrao, texto)
+    valores = re.findall(valor_padrao, texto)
+
+    for i in range(len(numeros)):
+        try:
+            faturas.append({
+                'numero': numeros[i],
+                'vencimento': datas[i],
+                'valor': valores[i]
+            })
+        except IndexError:
+            continue           
+    return faturas
+
+dados_faturas = extrair_dados_fatura(texto_completo)
+#test
+print("\nDados da fatura extraídos:")
+print(dados_faturas)
 
