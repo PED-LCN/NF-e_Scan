@@ -24,7 +24,7 @@ else:
 
         #Frame
         height, width, _ = frame.shape
-        frame_width = int(width * 0.95)
+        frame_width = int(width * 0.99)
         frame_height = int(height * 0.1)
         start_x = int((width - frame_width) / 2)
         start_y = int((height - frame_height) / 2)
@@ -37,8 +37,9 @@ else:
 
         cv2.imshow(window_name, frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('s'):    
-            cv2.imwrite('captura.jpg', frame)
+        if cv2.waitKey(1) & 0xFF == ord('s'): 
+            roi = frame[start_y:end_y, start_x:end_x]   
+            cv2.imwrite('captura.jpg', roi)
             print("Imagem capturada!")
             break
 
@@ -50,17 +51,25 @@ cv2.destroyAllWindows()
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 try:
-    img_capturad = cv2.imread('captura.jpg')
-    if img_capturad is None:
+    img_capturada = cv2.imread('captura.jpg')
+    if img_capturada is None:
         raise FileNotFoundError("Arquivo de imagem não encontrado.")
 except FileNotFoundError as e:
     print(e)
     exit()
 
-gray = cv2.cvtColor(img_capturad, cv2.COLOR_BGR2GRAY)
-thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+#filters
+gray = cv2.cvtColor(img_capturada, cv2.COLOR_BGR2GRAY)
+thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))
+dilated = cv2.dilate(thresh, kernel, iterations=1)
 
-texto_completo = pytesseract.image_to_string(thresh, lang='por')
+cv2.imshow('Imagem Processada',dilated )
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+config_tesseract = '--psm 6'
+texto_completo = pytesseract.image_to_string(thresh, lang='por',config=config_tesseract)
 
 print("\n--- Texto Extraído ---")
 print(texto_completo)
