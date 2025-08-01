@@ -21,13 +21,13 @@ else:
 
         #Frame
         height, width, _ = frame.shape
-        frame_width = int(width * 0.8)
-        frame_height = int(height * 0.2)
+        frame_width = int(width * 0.95)
+        frame_height = int(height * 0.1)
         start_x = int((width - frame_width) / 2)
         start_y = int((height - frame_height) / 2)
         end_x = start_x + frame_width
         end_y = start_y + frame_height
-        color = (0, 0, 245)  
+        color = (200, 0, 255)  
         thickness = 2       
         
         cv2.rectangle(frame, (start_x, start_y), (end_x, end_y), color, thickness)
