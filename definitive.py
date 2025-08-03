@@ -7,6 +7,7 @@ from docx import Document
 
 #Image Capture Part
 cap = cv2.VideoCapture(0)
+foto_salva = False
 if not cap.isOpened():
     print("Erro ao abrir a câmera")
     exit()
@@ -42,12 +43,16 @@ else:
         if cv2.waitKey(1) & 0xFF == ord('s'): 
             roi = frame[start_y:end_y, start_x:end_x]   
             cv2.imwrite('captura.jpg', roi)
+            foto_salva = True
             print("Imagem capturada!")
             break
 
-    
 cap.release()
 cv2.destroyAllWindows()
+
+if not foto_salva:
+    print("Processamento cancelado, nenhuma foto foi salva.")
+    exit()
 
 #Data process
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'C:\Users\PEDRO\Documents\google_creds\extratordenotasfiscais-c7b0947eedc2.json'
