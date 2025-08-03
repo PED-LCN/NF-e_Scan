@@ -1,7 +1,6 @@
 import os
 import io
 from google.cloud import vision
-import pytesseract
 import re
 import cv2
 from docx import Document
