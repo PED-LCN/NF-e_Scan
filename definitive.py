@@ -1,3 +1,6 @@
+import os
+import io
+from google.cloud import vision
 import pytesseract
 import re
 import cv2
@@ -48,57 +51,92 @@ cap.release()
 cv2.destroyAllWindows()
 
 #Data process
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'C:\Users\PEDRO\Documents\google_creds\extratordenotasfiscais-c7b0947eedc2.json'
 
-try:
-    img_capturada = cv2.imread('captura.jpg')
-    if img_capturada is None:
-        raise FileNotFoundError("Arquivo de imagem não encontrado.")
-except FileNotFoundError as e:
-    print(e)
-    exit()
+def detectar_texto_em_imagem_estruturado(caminho_para_foto):
+   
+    client = vision.ImageAnnotatorClient()
+    
+    with io.open(caminho_para_foto, 'rb') as image_file:
+        content = image_file.read()
+    
+    image = vision.Image(content=content)
+    
+    response = client.document_text_detection(image=image)
+    
+    return response
 
-#filters
-gray = cv2.cvtColor(img_capturada, cv2.COLOR_BGR2GRAY)
-thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))
-dilated = cv2.dilate(thresh, kernel, iterations=1)
-
-cv2.imshow('Imagem Processada',dilated )
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-config_tesseract = '--psm 6'
-texto_completo = pytesseract.image_to_string(thresh, lang='por',config=config_tesseract)
-
-print("\n--- Texto Extraído ---")
-print(texto_completo)
-print("----------------------\n")
-
-def extrair_dados_fatura(texto):
+def extrair_dados_fatura_api(api_response):
+    
     faturas = []
+    TOLERANCIA_Y = 2
+    
+    palavras_com_coordenadas = []
+    for page in api_response.full_text_annotation.pages:
+        for block in page.blocks:
+            for paragraph in block.paragraphs:
+                for word in paragraph.words:
+                    word_text = ''.join([symbol.text for symbol in word.symbols])
+                    y_coord = word.bounding_box.vertices[0].y
+                    x_coord = word.bounding_box.vertices[0].x
+                    palavras_com_coordenadas.append({'texto': word_text, 'y': y_coord, 'x': x_coord})
+    
+    palavras_com_coordenadas.sort(key=lambda item: item['y'])
+    
+    linhas_de_texto = []
+    if palavras_com_coordenadas:
+        linha_atual = [palavras_com_coordenadas[0]]
+        for i in range(1, len(palavras_com_coordenadas)):
+            if abs(palavras_com_coordenadas[i]['y'] - linha_atual[-1]['y']) < TOLERANCIA_Y:
+                linha_atual.append(palavras_com_coordenadas[i])
+            else:
+                linhas_de_texto.append(linha_atual)
+                linha_atual = [palavras_com_coordenadas[i]]
+        linhas_de_texto.append(linha_atual)
     
     numero_padrao = r'(\d{9}/\d{2})'
     data_padrao = r'(\d{2}/\d{2}/\d{4})'
     valor_padrao = r'(\d{1,3}\.\d{3},\d{2})'
     
-    numeros = re.findall(numero_padrao, texto)
-    datas = re.findall(data_padrao, texto)
-    valores = re.findall(valor_padrao, texto)
+    for linha in linhas_de_texto:
+        numeros = [item for item in linha if re.match(numero_padrao, item['texto'])]
+        datas = [item for item in linha if re.match(data_padrao, item['texto'])]
+        valores = [item for item in linha if re.match(valor_padrao, item['texto'])]
 
-    for i in range(len(numeros)):
-        try:
-            faturas.append({
-                'numero': numeros[i],
-                'vencimento': datas[i],
-                'valor': valores[i]
-            })
-        except IndexError:
-            continue           
+        if numeros:
+            numeros.sort(key=lambda item: item['x'])
+            datas.sort(key=lambda item: item['x'])
+            valores.sort(key=lambda item: item['x'])
+
+            for i in range(len(numeros)):
+                try:
+                    faturas.append({
+                        'numero': numeros[i]['texto'],
+                        'vencimento': datas[i]['texto'],
+                        'valor': valores[i]['texto']
+                    })
+                except IndexError:
+                    continue
+
     return faturas
 
-dados_faturas = extrair_dados_fatura(texto_completo)
-#test
-print("\nDados da fatura extraídos:")
-print(dados_faturas)
+caminho_imagem = 'captura.jpg'
 
+print("\n--- Enviando imagem para Google Vision AI ---")
+try:
+    response_api = detectar_texto_em_imagem_estruturado(caminho_imagem)
+    print("Texto extraído com sucesso pela API!")
+    
+except Exception as e:
+    print(f"Ocorreu um erro ao chamar a API: {e}")
+    print("Verifique se sua chave de autenticação está configurada corretamente.")
+    exit()
+
+dados_faturas = extrair_dados_fatura_api(response_api)
+
+print("\n--- Dados Processados ---")
+if dados_faturas:
+    for fatura in dados_faturas:
+        print(f"Número: {fatura['numero']}, Vencimento: {fatura['vencimento']}, Valor: {fatura['valor']}")
+else:
+    print("Nenhum item de fatura encontrado.")
