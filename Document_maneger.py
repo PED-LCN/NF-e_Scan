@@ -3,8 +3,6 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt, RGBColor,Inches
 
-#docx step
-
 def add_blank_lines(document, count):
     for _ in range(count):
         document.add_paragraph()
@@ -53,5 +51,3 @@ def create_document(dados_faturas, docx_file):
         print("Arquivo 'documento_notas_fiscais.docx' gerado com sucesso!")
     else:
         print("Nenhum dado de fatura encontrado. O arquivo Word não foi gerado.")
-
-

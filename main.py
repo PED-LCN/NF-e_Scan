@@ -151,4 +151,3 @@ if dados_faturas:
     create_document(dados_faturas, 'documento_notas_fiscais.docx')
 
 print("VERIFIQUE SE O DOCUMENTO ESTÁ CORRETO")
-
