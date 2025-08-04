@@ -174,7 +174,7 @@ if dados_faturas:
     numero_global = dados_faturas[0]['numero'].split('/')[0] if dados_faturas else 'N/A'
     p_nota = add_formatted_paragraph(document, f'NOTA: {numero_global}')
     p_nota.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    add_formatted_paragraph(document, '-' * 45)
+    add_formatted_paragraph(document, '-' * 44)
     add_blank_lines(document, 2)
     
     for i, item in enumerate(dados_faturas):
@@ -184,7 +184,7 @@ if dados_faturas:
             p_header.style = document.styles['Heading 1']
             p_nota = add_formatted_paragraph(document, f'NOTA: {numero_global}')
             p_nota.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            add_formatted_paragraph(document, '-' * 45)
+            add_formatted_paragraph(document, '-' * 44)
             add_blank_lines(document, 2)
             
         add_formatted_paragraph(document, f"NOTA FISCAL: {item['numero']}")
