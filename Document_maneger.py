@@ -47,7 +47,7 @@ def create_document(dados_faturas, docx_file):
             if (i + 1) % 4 != 0 and i < len(dados_faturas) - 1:
                 add_blank_lines(document, 2)
 
-        document.save('documento_notas_fiscais.docx')
-        print("Arquivo 'documento_notas_fiscais.docx' gerado com sucesso!")
+        document.save(f'nota_fiscal_{numero_global}.docx')
+        print(f"Arquivo 'notas_fiscal_{numero_global}.docx' gerado com sucesso!")
     else:
         print("Nenhum dado de fatura encontrado. O arquivo Word não foi gerado.")
