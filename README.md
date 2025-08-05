@@ -20,9 +20,9 @@
     </p>
     <div align = "center">
     <h4> <u>FRAME</u>  </h4>
-    <img src="code.png" width="300" height="200" alt= "Frame">
+    <img src="README/code.png" width="300" height="200" alt= "Frame">
     <h4>CAPTURE WINDOW (exemple)</h4>
-    <img src="Captura de tela 2025-08-04 234947.png" width="300" height="200" alt= "Window Capture">
+    <img src="README/Captura de tela 2025-08-04 234947.png" width="300" height="200" alt= "Window Capture">
     </div>
     <h3 align= 'center'>Θ EXTRAÇÃO DE DADOS Θ</h3>
     <p>
@@ -31,7 +31,7 @@
     <hr>
     <h4 align = 'center'> LOGICA DE EXTRAÇÃO DE DADOS </h4>
     <div align = "center">
-    <img src="logic.png" width="400" height="250" alt= "Window Capture">
+    <img src="README/logic.png" width="400" height="250" alt= "Window Capture">
     </div>
     <hr>
     <h3 align = 'center'>Θ GERAR DOCUMENTO Θ</h3>
