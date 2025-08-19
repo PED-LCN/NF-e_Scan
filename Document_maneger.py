@@ -46,7 +46,7 @@ def create_document(dados_faturas, docx_file):
             
             if (i + 1) % 4 != 0 and i < len(dados_faturas) - 1:
                 add_blank_lines(document, 2)
-
+        
         document.save(f'nota_fiscal_{numero_global}.docx')
         print(f"Arquivo 'notas_fiscal_{numero_global}.docx' gerado com sucesso!")
     else:

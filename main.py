@@ -129,7 +129,7 @@ caminho_imagem = 'captura.jpg'
 print("\n--- Enviando imagem para Google Vision AI ---")
 try:
     response_api = detectar_texto_em_imagem_estruturado(caminho_imagem)
-    print("Texto extraído com sucesso pela API!")
+    print("Texto extraído com sucesso pela API! \n")
     
 except Exception as e:
     print(f"Ocorreu um erro ao chamar a API: {e}")
@@ -146,8 +146,9 @@ else:
     print("Nenhum item de fatura encontrado.")
 
 #doc step
+docx_name= numero_global = dados_faturas[0]['numero'].split('/')[0] if dados_faturas else 'N/A'
 if dados_faturas:
     print("\n--- Gerando documento Word com paginacao ---")
-    create_document(dados_faturas, 'documento_notas_fiscais.docx')
+    create_document(dados_faturas,'nota_fiscal_{docx_name}.docx')
 
 print("VERIFIQUE SE O DOCUMENTO ESTÁ CORRETO")
