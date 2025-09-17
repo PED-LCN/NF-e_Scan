@@ -100,7 +100,7 @@ def extrair_dados_fatura_api(api_response):
     
     numero_padrao = r'(\d{9}/\d{2})'
     data_padrao = r'(\d{2}/\d{2}/\d{4})'
-    valor_padrao = r'(\d{1,3}\.\d{3},\d{2})'
+    valor_padrao = r'(\d{1,3}(?:\.\d{3})?,\d{2})'
     
     for linha in linhas_de_texto:
         numeros = [item for item in linha if re.match(numero_padrao, item['texto'])]
@@ -129,8 +129,7 @@ caminho_imagem = 'captura.jpg'
 print("\n--- Enviando imagem para Google Vision AI ---")
 try:
     response_api = detectar_texto_em_imagem_estruturado(caminho_imagem)
-    print("Texto extraído com sucesso pela API! \n")
-    
+    print("Texto extraído com sucesso pela API! \n")    
 except Exception as e:
     print(f"Ocorreu um erro ao chamar a API: {e}")
     print("Verifique se sua chave de autenticação está configurada corretamente.")

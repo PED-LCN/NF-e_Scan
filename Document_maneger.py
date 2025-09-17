@@ -28,7 +28,7 @@ def create_document(dados_faturas, docx_file):
         p_nota = add_formatted_paragraph(document, f'NOTA: {numero_global}')
         p_nota.alignment = WD_ALIGN_PARAGRAPH.LEFT
         add_formatted_paragraph(document, '-' * 44)
-        add_blank_lines(document, 2)
+        add_blank_lines(document, 1)
         
         for i, item in enumerate(dados_faturas):
             if i > 0 and i % 4 == 0:
@@ -38,14 +38,15 @@ def create_document(dados_faturas, docx_file):
                 p_nota = add_formatted_paragraph(document, f'NOTA: {numero_global}')
                 p_nota.alignment = WD_ALIGN_PARAGRAPH.LEFT
                 add_formatted_paragraph(document, '-' * 44)
-                add_blank_lines(document, 2)
-                
+                add_blank_lines(document, 1)
+
+            add_formatted_paragraph(document, 'EMPRESA: ETICAL ETIQUETAS CARUARU LTDA')        
             add_formatted_paragraph(document, f"NOTA FISCAL: {item['numero']}")
             add_formatted_paragraph(document, f"DATA: {item['vencimento']}")
             add_formatted_paragraph(document, f"VALOR: {item['valor']}")
             
             if (i + 1) % 4 != 0 and i < len(dados_faturas) - 1:
-                add_blank_lines(document, 2)
+                add_blank_lines(document, 1)
         
         document.save(f'nota_fiscal_{numero_global}.docx')
         print(f"Arquivo 'notas_fiscal_{numero_global}.docx' gerado com sucesso!")
